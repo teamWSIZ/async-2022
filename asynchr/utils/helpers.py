@@ -14,7 +14,7 @@ def task_name():
     return current_task().get_name()
 
 def clock():
-    return datetime.now().strftime('%H:%M:%S.%f')[:-3]
+    return datetime.now().strftime('%H:%M:%S.%f')[:]
 
 
 def log(what):
