@@ -13,6 +13,7 @@ class Car:
         self.fuel = 100  # 0..100   % of full
         self.wheels = [S.WHEEL_ON] * 4
         self.wheel_state = [30] * 4  # 0..100   % of the new one
+        self.in_service = False
 
     def __str__(self):
         return str(self.__dict__)
@@ -25,6 +26,7 @@ class CarService:
 
     async def take_car(self, car: Car):
         """Take the car for service; must be sure that only 1 car is in service at any time"""
+        # have to wait until self.car = None
         self.car = car
 
     async def release_car(self) -> Car:
@@ -37,9 +39,10 @@ class CarService:
 
     async def change_wheel(self, wheel_number):
         # check car is UP (if not -- wait until it is)
-        # check wheel is WHEEL_OFF or WHEEL_OLD
-        # if WHEEL_OLD -- take it off first (200ms)
-        # if WHEEL_OFF -- put new wheel on, and set WHEEL_ON (300ms)
+        # check wheel_state; if < 50 --- wheel must be changed (and get wheel_state=100)
+        #   - firstly, take the wheel off (200ms  (later + random..))
+        #   - replate the wheel (state -> 100) (300ms (later + random))
+        #   - put wheel on (100ms + random) --> self.wheels[wheel_number] should now be S.WHEEL_ON
         pass
 
 
