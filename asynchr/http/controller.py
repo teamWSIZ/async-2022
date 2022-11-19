@@ -26,7 +26,16 @@ async def hello(request):
 
 @routes.get('/welcome')
 async def welcome(request):
-    return web.json_response({'comment': 'Welcome!'})
+    user = request.rel_url.query.get('user', default='user')  # returns str
+    return web.json_response({'comment': f'Welcome {user}!'})
+
+
+@routes.get('/add')
+async def addition(request):
+    # przykład http://0.0.0.0:4001/add?a=10&b=12
+    # wynik: {"result": 22}
+    user = request.rel_url.query.get('user', default='user')  # returns str
+    return web.json_response({'result': f'...tbd...'})
 
 
 @routes.get('/square')
