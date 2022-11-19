@@ -1,18 +1,13 @@
-from asyncio import sleep, run
+add = lambda x, y: x + y
+mul = lambda x, y: x * y
+div = lambda x, y: x / y
+sub = lambda x, y: x - y
+pow = lambda x, y: x ** y
 
-async def goo():
-    print('ok')
+ops = {'add': add, 'subtract': sub, 'divide': div}
 
-def blah():
-    print('workz')
+op = "subtract"
+a = 10.
+b = 12.
 
-async def foo():
-    await sleep(0.2)
-    await goo()
-    blah()
-
-
-
-
-if __name__ == '__main__':
-    run(foo())
+print(ops[op](a, b))
