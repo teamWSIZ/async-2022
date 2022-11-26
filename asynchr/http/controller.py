@@ -28,6 +28,7 @@ service = Service()
 @routes.get('/')
 async def hello(request):
     await blah()
+    await service.my_exciting_async_job(11)
     return web.json_response({'comment': 'OK'})
 
 
@@ -82,7 +83,7 @@ async def new_user(request):
 @routes.get('/images')
 async def serve_a_file(request):
     log('serving a file')
-    return web.FileResponse('images/feather.png')
+    return web.FileResponse('images/lake.png')
 
 
 @routes.post('/images')
@@ -94,7 +95,7 @@ async def accept_file(request):
     field = await reader.next()
     assert field.name == 'file'
     filename = field.filename
-    print(f'filename:{filename}')
+    log(f'filename:{filename}')
     filename = 'images/' + filename
     size = 0
     with open(filename, 'wb') as f:
@@ -116,6 +117,10 @@ app.add_routes(routes)
 
 
 async def app_factory():
+    """
+    Function run at the startup of the application. If some async initialization is needed - put it in here.
+    :return:
+    """
     await sleep(0.01)
     await service.initialize()
     return app

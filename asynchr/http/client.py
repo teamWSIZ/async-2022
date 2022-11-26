@@ -1,5 +1,6 @@
 from asyncio import run, create_task, gather
 
+import aiofiles
 import aiohttp
 
 from asynchr.http.some_model import SimpleResult
@@ -25,8 +26,8 @@ async def test_add_endpoint(a, b, expected_result, expected_status=200):
 async def test_call_auth():
     async with aiohttp.ClientSession() as session:
         async with session.get(f'https://auth.wsi.edu.pl/status') as resp:
-            res_json = await resp.json()
-            res = SimpleResult(**res_json)
+            res_dict = await resp.json()
+            res = SimpleResult(**res_dict)
             assert 'OK' in res.result
 
 
@@ -39,10 +40,18 @@ async def test_call_post():
 
 
 async def upload_image():
-    with open('lake.png', 'rb') as f:
+    with open('hills.png', 'rb') as f:
         async with aiohttp.ClientSession() as session:
-            files = {'file': open('lake.png', 'rb')}
+            files = {'file': f}
             await session.post('http://localhost:4001/images', data=files)
+
+
+async def download_image():
+    async with aiohttp.ClientSession() as session:
+        url = "http://localhost:4001/images"
+        async with session.get(url) as resp:
+            async with aiofiles.open('images/served.png', mode='wb') as f:
+                await f.write(await resp.read())
 
 
 async def main():
@@ -57,6 +66,7 @@ async def main():
     # await test_add_endpoint(11, 12, expected_result=22)
     # await test_call_auth()
     # await test_call_post()
+    # await download_image()
     await upload_image()
 
 

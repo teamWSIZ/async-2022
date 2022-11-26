@@ -7,3 +7,6 @@ class Service:
 
     async def initialize(self):
         log('async part of initialization of Service')
+
+    async def my_exciting_async_job(self, id: int):
+        log(f'running job {id}')
