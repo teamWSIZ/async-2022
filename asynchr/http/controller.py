@@ -82,8 +82,33 @@ async def new_user(request):
 @routes.get('/images')
 async def serve_a_file(request):
     log('serving a file')
-    return web.FileResponse('feather.png')
+    return web.FileResponse('images/feather.png')
 
+
+@routes.post('/images')
+async def accept_file(request):
+    # https://docs.aiohttp.org/en/stable/web_quickstart.html#file-uploads
+    log('file upload request')
+    reader = await request.multipart()
+
+    field = await reader.next()
+    assert field.name == 'file'
+    filename = field.filename
+    print(f'filename:{filename}')
+    filename = 'images/' + filename
+    size = 0
+    with open(filename, 'wb') as f:
+        file_as_bytes = b''
+        while True:
+            chunk = await field.read_chunk()  # 8192 bytes by default.
+            if not chunk:
+                break
+            size += len(chunk)
+            # file_as_bytes += chunk
+            f.write(chunk)
+        # f.write(file_as_bytes)
+
+    return web.json_response({'name': filename, 'size': size})
 
 
 app = web.Application()

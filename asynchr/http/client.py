@@ -38,6 +38,13 @@ async def test_call_post():
             print(res_dict)
 
 
+async def upload_image():
+    with open('lake.png', 'rb') as f:
+        async with aiohttp.ClientSession() as session:
+            files = {'file': open('lake.png', 'rb')}
+            await session.post('http://localhost:4001/images', data=files)
+
+
 async def main():
     # t = []
     # for i in range(100):
@@ -49,7 +56,8 @@ async def main():
     # await test_add_endpoint(10, 12, expected_result=22)
     # await test_add_endpoint(11, 12, expected_result=22)
     # await test_call_auth()
-    await test_call_post()
+    # await test_call_post()
+    await upload_image()
 
 
 if __name__ == '__main__':
