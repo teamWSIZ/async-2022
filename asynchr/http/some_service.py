@@ -1,4 +1,4 @@
-from asynchr.utils.helpers import log
+from asynchr.utils import log
 
 
 class Service:

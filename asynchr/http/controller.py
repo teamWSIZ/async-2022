@@ -4,7 +4,7 @@ from datetime import datetime
 from aiohttp import web
 
 from asynchr.http.some_service import Service
-from scratch.utils import log
+from asynchr.utils import log
 
 """
 https://docs.aiohttp.org/en/stable/web_quickstart.html#
