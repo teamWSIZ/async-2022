@@ -1,5 +1,10 @@
 from asyncio import sleep
+from datetime import datetime
+
 from aiohttp import web
+
+from asynchr.http.some_service import Service
+from scratch.utils import log
 
 """
 https://docs.aiohttp.org/en/stable/web_quickstart.html#
@@ -17,6 +22,7 @@ async def blah():
 
 # ----------------
 routes = web.RouteTableDef()
+service = Service()
 
 
 @routes.get('/')
@@ -52,7 +58,6 @@ async def computation(request):
     return web.json_response({'result': f'...fill_me...'})
 
 
-
 @routes.get('/square')
 async def square(request):
     # call: http://0.0.0.0:4000/square?x=12
@@ -62,7 +67,33 @@ async def square(request):
     return web.json_response({'result': xx})
 
 
+@routes.post('/users')
+async def new_user(request):
+    log('creating a user')
+    user_dict = await request.json()
+    # user = User(**user_dict)
+    # save to DB or sth
+    log(f'new user: {user_dict}')
+    user_dict['created'] = datetime.now().timestamp()
+
+    return web.json_response({'result': user_dict})
+
+
+@routes.get('/images')
+async def serve_a_file(request):
+    log('serving a file')
+    return web.FileResponse('feather.png')
+
+
+
 app = web.Application()
 app.add_routes(routes)
 
-web.run_app(app, port=4001)
+
+async def app_factory():
+    await sleep(0.01)
+    await service.initialize()
+    return app
+
+
+web.run_app(app_factory(), port=4001)
