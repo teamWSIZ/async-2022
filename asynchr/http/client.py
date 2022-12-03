@@ -40,7 +40,7 @@ async def test_call_post():
 
 
 async def upload_image():
-    with open('hills.png', 'rb') as f:
+    with open('hills.zip', 'rb') as f:
         async with aiohttp.ClientSession() as session:
             files = {'file': f}
             await session.post('http://localhost:4001/images', data=files)

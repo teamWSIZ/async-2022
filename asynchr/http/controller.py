@@ -83,7 +83,7 @@ async def new_user(request):
 @routes.get('/images')
 async def serve_a_file(request):
     log('serving a file')
-    return web.FileResponse('images/lake.png')
+    return web.FileResponse('images/hills.zip')
 
 
 @routes.post('/images')
