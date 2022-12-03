@@ -3,6 +3,9 @@ from datetime import datetime
 
 from aiohttp import web
 
+from asynchr.db.db_config import DB_PASS, DB_HOST
+from asynchr.db.db_service import DbService
+from asynchr.db.model import User
 from asynchr.http.some_service import Service
 from asynchr.utils import log
 
@@ -23,7 +26,7 @@ async def blah():
 # ----------------
 routes = web.RouteTableDef()
 service = Service()
-
+db = DbService(DB_HOST, DB_PASS)
 
 @routes.get('/')
 async def hello(request):
@@ -68,16 +71,27 @@ async def square(request):
     return web.json_response({'result': xx})
 
 
+@routes.get('/users')
+async def fetch_users(request):
+    offset = int(request.rel_url.query.get('offset', default='0'))
+    limit = int(request.rel_url.query.get('b', default='500'))
+    users = await db.get_users(offset, limit)
+    users_d = [u.__dict__ for u in users]
+    return web.json_response(users_d)
+
+
+
 @routes.post('/users')
 async def new_user(request):
     log('creating a user')
     user_dict = await request.json()
-    # user = User(**user_dict)
-    # save to DB or sth
-    log(f'new user: {user_dict}')
-    user_dict['created'] = datetime.now().timestamp()
+    user = User(**user_dict)
 
-    return web.json_response({'result': user_dict})
+    user_inserted = await db.upsert(user)
+
+    log(f'new user: {user_inserted}')
+
+    return web.json_response(user_inserted.__dict__)
 
 
 @routes.get('/images')
@@ -123,6 +137,7 @@ async def app_factory():
     """
     await sleep(0.01)
     await service.initialize()
+    await db.initialize()
     return app
 
 

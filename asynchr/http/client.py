@@ -32,7 +32,7 @@ async def test_call_auth():
 
 
 async def test_call_post():
-    user_dict = {'id': 113, 'name': 'William'}
+    user_dict = {'uid': 0, 'name': 'William', 'address': 'London'}
     async with aiohttp.ClientSession() as session:
         async with session.post(f'http://localhost:4001/users', json=user_dict) as resp:
             res_dict = await resp.json()
@@ -65,9 +65,9 @@ async def main():
     # await test_add_endpoint(10, 12, expected_result=22)
     # await test_add_endpoint(11, 12, expected_result=22)
     # await test_call_auth()
-    # await test_call_post()
+    await test_call_post()
     # await download_image()
-    await upload_image()
+    # await upload_image()
 
 
 if __name__ == '__main__':
