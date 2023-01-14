@@ -40,10 +40,11 @@ async def test_call_post():
 
 
 async def upload_image():
-    with open('hills.zip', 'rb') as f:
+    with open('large.bin', 'rb') as f:
         async with aiohttp.ClientSession() as session:
             files = {'file': f}
             await session.post('http://localhost:4001/images', data=files)
+    print('image uploaded successfully ')
 
 
 async def download_image():
@@ -65,9 +66,9 @@ async def main():
     # await test_add_endpoint(10, 12, expected_result=22)
     # await test_add_endpoint(11, 12, expected_result=22)
     # await test_call_auth()
-    await test_call_post()
+    # await test_call_post()
     # await download_image()
-    # await upload_image()
+    await upload_image()
 
 
 if __name__ == '__main__':

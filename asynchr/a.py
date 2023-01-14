@@ -1,13 +1,19 @@
-add = lambda x, y: x + y
-mul = lambda x, y: x * y
-div = lambda x, y: x / y
-sub = lambda x, y: x - y
-pow = lambda x, y: x ** y
+from asyncio import sleep, create_task, run
 
-ops = {'add': add, 'subtract': sub, 'divide': div}
 
-op = "subtract"
-a = 10.
-b = 12.
+async def blink(n: int):
+    for i in range(n):
+        print('blink')
+        await sleep(0.2)
 
-print(ops[op](a, b))
+
+async def main():
+    for i in range(10000):
+        if i % 5 == 0:
+            print(f'{i=}')
+            create_task(blink(3))
+        await sleep(1)
+
+
+if __name__ == '__main__':
+    run(main())
