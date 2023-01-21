@@ -1,4 +1,6 @@
 aiohttp
 aiofiles~=22.1.0
 
+
+aiofile~=3.8.1
 asyncpg~=0.27.0
