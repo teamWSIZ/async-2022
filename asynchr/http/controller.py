@@ -1,3 +1,4 @@
+import os.path
 from asyncio import sleep, create_task
 from datetime import datetime
 
@@ -148,7 +149,8 @@ async def accept_file(request):
 
     filename = field.filename
     # log(f'filename:{filename}')
-    filename = 'images/' + filename
+    # filename = 'images/' + filename
+    filename = os.path.join('filedump/', filename)
     size = 0
 
     # with open(filename, 'wb') as f:
