@@ -3,14 +3,21 @@ from random import randint
 
 from locust import task, between, FastHttpUser
 
+"""
+Run with:
 
+locust -f loc.py
+
+"""
 
 class QuickstartUser(FastHttpUser):
     wait_time = between(0.001, 0.002)
 
-    # @task(5)
-    # def hello_world(self):
-    #     self.client.get('/welcome?user=Karramba')
+    @task(5)
+    def hello_world(self):
+        self.client.get('/welcome?user=Karramba')
+
+
     # #
     # @task(1)
     # def put_khresults(self):

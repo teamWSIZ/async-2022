@@ -1,6 +1,7 @@
 from asyncio import sleep, create_task
 from datetime import datetime
 
+from aiofile import async_open
 from aiohttp import web
 
 from asynchr.db.db_config import DB_PASS, DB_HOST
@@ -24,7 +25,7 @@ def format_report(q_values):
     s = f'[{q_values[0]:.3f}'
     for v in q_values:
         s += ',' + f'{v:.3f}'
-    s += ']'
+    s += '] (ms)'
     return s
 
 
@@ -39,7 +40,7 @@ def get_percentiles(delays: list[float], quantiles: list[float]):
 
 async def report_from_watcher(delays: list[float]):
     n = len(delays)
-    log(f'watcher report {n=:4d}: {format_report(get_percentiles(delays, [0.01, 0.05, 0.5, 0.95, 0.99]))}')
+    log(f'watcher report - delays on ticks every 10ms {n=:4d}: {format_report(get_percentiles(delays, [0.01, 0.05, 0.5, 0.95, 0.99]))}')
 
 
 async def watcher():
@@ -149,16 +150,18 @@ async def accept_file(request):
     # log(f'filename:{filename}')
     filename = 'images/' + filename
     size = 0
-    with open(filename, 'wb') as f:
+
+    # with open(filename, 'wb') as f:
+    async with async_open(filename, 'wb') as f:
         file_as_bytes = b''  # when gathering all
         while True:
             chunk = await field.read_chunk()  # 8192 bytes by default.
             if not chunk:
                 break
             size += len(chunk)
-            file_as_bytes += chunk
-            # f.write(chunk)
-        f.write(file_as_bytes)
+            # file_as_bytes += chunk
+            await f.write(chunk)
+        # await f.write(file_as_bytes)
 
     return web.json_response({'name': filename, 'size': size})
 
