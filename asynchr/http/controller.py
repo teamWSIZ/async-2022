@@ -4,6 +4,7 @@ from datetime import datetime
 
 from aiofile import async_open
 from aiohttp import web
+from orjson import orjson
 
 from asynchr.db.db_config import DB_PASS, DB_HOST
 from asynchr.db.db_service import DbService
@@ -69,6 +70,7 @@ db = DbService(DB_HOST, DB_PASS)
 @routes.get('/')
 async def hello(request):
     await service.my_exciting_async_job(11)
+    # return web.json_response({'comment': 'OK'}, dumps=lambda x: orjson.dumps(x).decode())
     return web.json_response({'comment': 'OK'})
 
 
@@ -154,15 +156,16 @@ async def accept_file(request):
     size = 0
 
     # with open(filename, 'wb') as f:
-    async with async_open(filename, 'wb') as f:
+    async with async_open(filename, 'wb') as f:  # aiofile way to do it
         file_as_bytes = b''  # when gathering all
         while True:
-            chunk = await field.read_chunk()  # 8192 bytes by default.
+            chunk = await field.read_chunk(size=8192 * 1)  # 8192 bytes by default.
             if not chunk:
                 break
             size += len(chunk)
             # file_as_bytes += chunk
             await f.write(chunk)
+            # f.write(chunk)
         # await f.write(file_as_bytes)
 
     return web.json_response({'name': filename, 'size': size})
