@@ -124,7 +124,7 @@ async def accept_file(request):
     # with open(filename, 'wb') as f:   # blocking
     async with async_open(filename, 'wb') as f:  # aiofile
         while True:
-            chunk = await field.read_chunk(size=8192 * 1)  # 8192 bytes by default.
+            chunk = await field.read_chunk(size=8192 * 5)  # 8192 bytes by default.
             if not chunk:
                 break
             size += len(chunk)
