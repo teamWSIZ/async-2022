@@ -1,16 +1,12 @@
 import os.path
 from asyncio import sleep, create_task
-from datetime import datetime
 
 from aiofile import async_open
 from aiohttp import web
-from orjson import orjson
 
-from asynchr.db.db_config import DB_PASS, DB_HOST
-from asynchr.db.db_service import DbService
-from asynchr.db.model import User
-from asynchr.http.some_service import Service
-from asynchr.utils import log, task_name, ts
+# from asynchr.db.db_config import DB_PASS, DB_HOST
+# from asynchr.db.db_service import DbService
+from utils import log, task_name, ts
 
 """
 https://docs.aiohttp.org/en/stable/web_quickstart.html#
@@ -46,6 +42,10 @@ async def report_from_watcher(delays: list[float]):
 
 
 async def watcher():
+    """
+    Engine supporting continuous monitoring of the event loop of the application.
+
+    """
     log(f'watcher started on task: {task_name()}')
     start = ts()
     previous = start
@@ -63,14 +63,13 @@ async def watcher():
 
 # ----------------
 routes = web.RouteTableDef()
-service = Service()
-db = DbService(DB_HOST, DB_PASS)
+
+
+# db = DbService(DB_HOST, DB_PASS) # rough way to create services
 
 
 @routes.get('/')
 async def hello(request):
-    await service.my_exciting_async_job(11)
-    # return web.json_response({'comment': 'OK'}, dumps=lambda x: orjson.dumps(x).decode())
     return web.json_response({'comment': 'OK'})
 
 
@@ -83,53 +82,13 @@ async def welcome(request):
     return web.json_response({'comment': f'Welcome {user}!'})
 
 
-@routes.get('/add')
-async def addition(request):
-    # przykład http://localhost:4001/add?a=10&b=12
-    # wynik: {"result": 22}
-    a = float(request.rel_url.query.get('a', default='0'))
-    b = float(request.rel_url.query.get('b', default='0'))
-    result = a + b
-    return web.json_response({'result': result})
-
-
-@routes.get('/compute')
-async def computation(request):
-    # support dla "add", "subtract", "multiply", "divide", "power"; a,b mogą być float-ami
-    # przykład http://localhost:4001/add?a=10&b=4?operation=divide
-    # wynik: {"result": 2.5}
-    return web.json_response({'result': f'...fill_me...'})
-
-
-@routes.get('/square')
-async def square(request):
-    # call: http://0.0.0.0:4000/square?x=12
-    sx: str = request.rel_url.query['x']
-    x = int(sx)
-    xx = x ** 2
-    return web.json_response({'result': xx})
-
-
-@routes.get('/users')
-async def fetch_users(request):
-    offset = int(request.rel_url.query.get('offset', default='0'))
-    limit = int(request.rel_url.query.get('b', default='500'))
-    users = await db.get_users(offset, limit)
-    users_d = [u.__dict__ for u in users]
-    return web.json_response(users_d)
-
-
-@routes.post('/users')
-async def new_user(request):
-    log('creating a user')
-    user_dict = await request.json()
-    user = User(**user_dict)
-
-    user_inserted = await db.upsert(user)
-
-    log(f'new user: {user_inserted}')
-
-    return web.json_response(user_inserted.__dict__)
+# @routes.get('/users')
+# async def fetch_users(request):
+#     offset = int(request.rel_url.query.get('offset', default='0'))
+#     limit = int(request.rel_url.query.get('b', default='500'))
+#     users = await db.get_users(offset, limit)
+#     users_d = [u.__dict__ for u in users]
+#     return web.json_response(users_d)
 
 
 @routes.get('/images')
@@ -140,6 +99,12 @@ async def serve_a_file(request):
 
 @routes.post('/images')
 async def accept_file(request):
+    """
+    Main goal of the application -- support for efficient upload.
+
+    :param request:
+    :return:
+    """
     # https://docs.aiohttp.org/en/stable/web_quickstart.html#file-uploads
     reader = await request.multipart()  # first one is field.name = 'files'
     field = await reader.next()
@@ -152,21 +117,19 @@ async def accept_file(request):
     filename = field.filename
     # log(f'filename:{filename}')
     # filename = 'images/' + filename
-    filename = os.path.join('filedump/', filename)
+    filename = 'saved.bin'
+    # filename = os.path.join('/home/wrong/ramdrive/', filename)
     size = 0
 
-    # with open(filename, 'wb') as f:
-    async with async_open(filename, 'wb') as f:  # aiofile way to do it
-        file_as_bytes = b''  # when gathering all
+    # with open(filename, 'wb') as f:   # blocking
+    async with async_open(filename, 'wb') as f:  # aiofile
         while True:
             chunk = await field.read_chunk(size=8192 * 1)  # 8192 bytes by default.
             if not chunk:
                 break
             size += len(chunk)
-            # file_as_bytes += chunk
-            await f.write(chunk)
-            # f.write(chunk)
-        # await f.write(file_as_bytes)
+            await f.write(chunk)  # aiofile
+            # f.write(chunk)    # blocking
 
     return web.json_response({'name': filename, 'size': size})
 
@@ -181,8 +144,7 @@ async def app_factory():
     :return:
     """
     await sleep(0.01)
-    await service.initialize()
-    await db.initialize()
+    # await db.initialize()
     create_task(watcher())
     return app
 

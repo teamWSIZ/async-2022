@@ -1,0 +1,5 @@
+aiohttp
+aiohttp-cors
+# asyncpg
+python-dotenv
+aiofile

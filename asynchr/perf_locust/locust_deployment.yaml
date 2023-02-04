@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  master:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/loc.py --master -H http://master:8089
+    networks:
+      - net1
+
+  worker:
+    image: locustio/locust
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '100M'
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/loc.py --worker --master-host master
+    networks:
+      - net1
+
+networks:
+  net1:
